@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from typing import Optional
 import logging
@@ -21,7 +20,7 @@ class Librespot:
         if not path.exists():
             logging.warning(
                 "Please log in to Librespot from Spotify's official client! "
-                "Any command using Spotify features will not work."
+                "Librespot should appear as a device in the devices tab."
             )
             session = ZeroconfServer.Builder().create()
             while not path.exists():
@@ -47,23 +46,3 @@ class Librespot:
             await self.loop.run_in_executor(self.executor, self.session.close)
             self.session = None
             logging.info("Librespot session closed.")
-
-    async def refresh_librespot(self) -> None:
-        if self.session:
-            try:
-                await self.close_session()
-            except Exception:
-                # To precise, except ConnectionAbortedError is
-                # interrupting the function
-                pass
-            self.session = None
-        try:
-            await self.generate_session()
-        except Exception as e:
-            logging.error(
-                f"An error occurred when refreshing Librespot: {e},"
-                "retying in 5 seconds..."
-            )
-            await asyncio.sleep(5)
-            await self.refresh_librespot()
-        logging.info("Librespot session regenerated successfully.")
