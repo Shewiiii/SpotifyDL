@@ -15,7 +15,9 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-If you struggle to generate the `credentials.json` file (eg. you are running the script on a server), run the script locally, then export the file in the root folder.
+If you struggle to generate the `credentials.json` file (eg. you are running the script on a server), run the script locally, connect to the "librespot" device from a Spotify client on the same computer, then export the file to the root folder of SpotifyDL.  
+
+Supported query: song title, Spotify URL (track, album or **public** playlist).
 
 
 ## To do
