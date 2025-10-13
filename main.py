@@ -3,14 +3,14 @@ import sys
 from dotenv import load_dotenv
 from pathlib import Path
 
+from src.config import TRACK_FOLDER
 from src.librespotify import Librespot
 from src.spotify import SpotifyAPI
-
 from src.utils import tag_ogg_file
 
 
 load_dotenv()
-Path("./tracks").mkdir(exist_ok=True)
+Path(TRACK_FOLDER).mkdir(exist_ok=True, parents=True)
 
 # Logs
 logging.basicConfig(
@@ -21,6 +21,7 @@ logging.basicConfig(
 )
 logging.getLogger("urllib3.connectionpool").setLevel(logging.ERROR)
 filtered_logs = [
+    "Librespot:AudioKeyManager",
     "Librespot:Session",
     "Librespot:TokenProvider",
     "Librespot:CdnManager",
@@ -40,13 +41,25 @@ if __name__ == "__main__":
 
     def request(query: str) -> None:
         tracks = spotify_api.get_tracks(query)
-        if len(tracks) >= 10:
+        if len(tracks) > 10:
             c = input(
-                f"You are about to download {len(tracks)} tracks, continue ? (y/n): "
+                f"You are about to download {len(tracks)} tracks and may be ratelimited. "
+                "Continue ? (y/n): "
             )
             if c.lower() not in {"y", ""}:
                 return
+
         for track in tracks:
+            path = track.get_path()
+
+            # Skip if file exists
+            # Simplier but not ideal because that track
+            # could be corrupted and will not be replaced
+            if path.exists():
+                logging.info(f'"{track}" already downloaded, skipping')
+                continue
+
+            # Download
             track.store_spotify_stream(ls)
             logging.info(f"Successfully downloaded: {track}")
 

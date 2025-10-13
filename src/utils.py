@@ -87,4 +87,4 @@ def tag_ogg_file(
     except OggVorbisHeaderError as e:
         logging.debug(f"{track}: {e}")  # Should not impact the output
 
-    logging.info(f"Tagged '{file_path}' successfully.")
+    logging.info(f'Tagged "{file_path.stem}" successfully.')

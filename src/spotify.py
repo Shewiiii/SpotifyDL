@@ -85,7 +85,9 @@ class SpotifyAPI:
         offset: int = 0,
         type: str = "track",
     ) -> list:
-        return self.api.search(query, limit=limit, offset=offset, type=type)[f"{type}s"]["items"]
+        return self.api.search(query, limit=limit, offset=offset, type=type)[
+            f"{type}s"
+        ]["items"]
 
     def fetch_id(
         self,
@@ -109,7 +111,11 @@ class SpotifyAPI:
             "type": "album" if album else "track",
         }
 
-    def get_track_(self, track_api: dict, album_info: Optional[dict] = None) -> Track:
+    def get_track_(
+        self,
+        track_api: dict,
+        album_info: Optional[dict] = None,
+    ) -> Track:
         """Extracts and returns track information from Spotify API response."""
         album = album_info or track_api.get("album", {})
         album_name = get_album_name(album.get("name"))
