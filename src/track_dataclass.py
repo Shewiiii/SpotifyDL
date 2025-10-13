@@ -1,4 +1,3 @@
-import re
 import logging
 from time import sleep
 from dataclasses import dataclass, field
@@ -22,7 +21,8 @@ PICKERS = {
     "vorbis": VorbisOnlyAudioQuality(AudioQuality.VERY_HIGH),
 }
 
-ILLEGAL_REGEX = re.compile(r'[<>:"/\\|?*]')
+ILLEGAL_CHARS = '/\\?%*:|"<>!'  # Extend as needed
+ILLEGAL_TABLE = str.maketrans({c: "-" for c in ILLEGAL_CHARS})
 
 
 @dataclass()
@@ -69,14 +69,15 @@ class Track:
         self.path = TRACK_FOLDER
         # Path here: songs / artist / album / track
         for part in [self.artists[0], self.album, f"{self}{self.ext}"]:
-            part = re.sub(ILLEGAL_REGEX, "-", part)
+            part = part.translate(ILLEGAL_TABLE)
             self.path = self.path / part
 
         return self
 
     def get_path(self) -> Path:
-        if not self.path or self.path.suffix != self.ext:
-            self.set_path()
+        # Fast enough to call it every time
+        # Prevent renaming/ext change issues
+        self.set_path()
         return self.path
 
     def load_stream_(
