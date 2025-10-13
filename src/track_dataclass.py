@@ -68,15 +68,15 @@ class Track:
     def set_path(self) -> Self:
         self.path = TRACK_FOLDER
         # Path here: songs / artist / album / track
-        for part in [self.artists[0], self.album, f"{self}.{self.ext}"]:
+        for part in [self.artists[0], self.album, f"{self}{self.ext}"]:
             part = re.sub(ILLEGAL_REGEX, "-", part)
             self.path = self.path / part
 
         return self
 
     def get_path(self) -> Path:
-        if not self.path:
-            self.set_path()  # Set path once when needed
+        if not self.path or self.path.suffix != self.ext:
+            self.set_path()
         return self.path
 
     def load_stream_(
@@ -106,12 +106,11 @@ class Track:
         self.load_stream_(ls, aq_picker=PICKERS["flac"])
         if not self.stream_source:
             logging.warning(f'FLAC file not found for "{self}", getting OGG stream.')
-            self.ext = "ogg"
+            self.ext = ".ogg"
             self.load_stream_(ls, aq_picker=PICKERS["vorbis"])
         return self.stream_source
 
     def store_spotify_stream(self, ls: Optional[Librespot] = None) -> bool:
-        path = self.get_path()
         if not self.stream_source:
             if not ls:
                 logging.error(f'No loaded stream for "{self}": please parse Librespot.')
@@ -119,6 +118,7 @@ class Track:
             self.generate_stream(ls)
 
         # Download
+        path = self.get_path()
         path.parent.mkdir(exist_ok=True, parents=True)
         with open(path, "wb") as file:
             while True:

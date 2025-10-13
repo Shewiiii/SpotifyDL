@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 from config import TRACK_FOLDER
+from src.track_dataclass import Track
 from src.librespotify import Librespot
 from src.spotify import SpotifyAPI
 from src.utils import tag_ogg_file
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     spotify_api = SpotifyAPI()
 
     def request(query: str) -> None:
-        tracks = spotify_api.get_tracks(query)
+        tracks: list[Track] = spotify_api.get_tracks(query)
         if len(tracks) > 10:
             c = input(
                 f"You are about to download {len(tracks)} tracks and may be ratelimited. "
@@ -65,10 +66,10 @@ if __name__ == "__main__":
 
             # Tag (OGG files only) TODO: add FLAC support
             match track.ext:
-                case "ogg":
+                case ".ogg":
                     tag_ogg_file(track)
                 case _:
-                    logging.warning(f"Tagging not supported for .{track.ext} files")
+                    logging.warning(f"Tagging not supported for {track.ext} files")
 
     try:
         while True:
