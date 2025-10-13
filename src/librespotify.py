@@ -19,7 +19,7 @@ class Librespot:
         """Wait for credentials and generate a json file if needed."""
         if not path.exists():
             logging.warning(
-                "Please log in to Librespot from Spotify's official client! "
+                "Please log in to Librespot from Spotify's official client !\n"
                 "Librespot should appear as a device in the devices tab."
             )
             session = ZeroconfServer.Builder().create()
@@ -40,9 +40,8 @@ class Librespot:
         self.updated = datetime.now()
         logging.info("Librespot session created !")
 
-    async def close_session(self) -> None:
-        """Close the Librespot session."""
+    def close_session(self) -> None:
         if self.session:
-            await self.loop.run_in_executor(self.executor, self.session.close)
+            self.session.close()
             self.session = None
             logging.info("Librespot session closed.")

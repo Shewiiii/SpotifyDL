@@ -57,9 +57,14 @@ if __name__ == "__main__":
                 case _:
                     logging.warning(f"Tagging not supported for .{track.ext} files")
 
-    while True:
-        try:
-            query = input("Query: ")
-        except Exception as e:
-            logging.error(e)
-        request(query)
+    try:
+        while True:
+            try:
+                query = input("Query: ")
+            except Exception as e:
+                logging.error(e)
+            request(query)
+
+    except KeyboardInterrupt:
+        print()
+        ls.close_session()
