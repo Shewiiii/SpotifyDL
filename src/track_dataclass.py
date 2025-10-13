@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Union, Optional, Self, Literal
 
-from src.config import TRACK_FOLDER
+from config import TRACK_FOLDER
 from src.librespotify import Librespot
 from librespot.audio import AbsChunkedInputStream, AudioQualityPicker
 from librespot.metadata import TrackId

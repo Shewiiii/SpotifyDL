@@ -3,7 +3,7 @@ import sys
 from dotenv import load_dotenv
 from pathlib import Path
 
-from src.config import TRACK_FOLDER
+from config import TRACK_FOLDER
 from src.librespotify import Librespot
 from src.spotify import SpotifyAPI
 from src.utils import tag_ogg_file
