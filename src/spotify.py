@@ -1,3 +1,4 @@
+import asyncio
 import re
 import os
 import logging
@@ -45,17 +46,22 @@ class SpotifyAPI:
         self.client_id = os.getenv("SPOTIPY_CLIENT_ID")
         self.client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
 
-        # Verify if provided tokens are valid then connect to Spotify's API
+    def prompt_tokens(self) -> None:
+        self.client_id = input("Spotify client ID: ")
+        self.client_secret = input("Spotify client secret: ")
+
+    async def init_api(self) -> None:
+        logging.info("Connecting to Spotify API..")
+
+        if not (self.client_id or self.client_secret):
+            logging.info(
+                "Please create a Spotify App, then paste the correct "
+                "values below: https://developer.spotify.com/dashboard"
+            )
+            self.prompt_tokens()
+
         valid_app = False
         while not valid_app:
-            if not (self.client_id or self.client_secret):
-                logging.info(
-                    "Please create a Spotify App, then paste the correct "
-                    "values below: https://developer.spotify.com/dashboard"
-                )
-                self.client_id = input("Spotify client ID: ")
-                self.client_secret = input("Spotify client secret: ")
-
             # Tested API
             self.api = spotipy.Spotify(
                 auth_manager=SpotifyClientCredentials(
@@ -64,7 +70,8 @@ class SpotifyAPI:
                 )
             )
             try:
-                self.search("yunomi", limit=1)
+                # API Request Test
+                await asyncio.to_thread(self.api.track, "6kIivltIxJscvk682sTXoV")
                 valid_app = True
                 with open(".env", "w") as config_file:
                     config_file.write(
@@ -77,6 +84,7 @@ class SpotifyAPI:
                 logging.error(
                     "Client ID or Client secret is incorrect, please try again."
                 )
+                self.prompt_tokens()
 
     def search(
         self,

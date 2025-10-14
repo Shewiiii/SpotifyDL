@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 from dotenv import load_dotenv
@@ -33,52 +34,60 @@ for log in filtered_logs:
     logging.getLogger(log).setLevel(logging.CRITICAL + 1)
 
 
-if __name__ == "__main__":
+def request(query: str, ls: Librespot, api: SpotifyAPI) -> None:
+    tracks: list[Track] = api.get_tracks(query)
+    if len(tracks) > 10:
+        c = input(
+            f"You are about to download {len(tracks)} tracks and may be ratelimited. "
+            "Continue ? (y/n): "
+        )
+        if c.lower() not in {"y", ""}:
+            return
+
+    for track in tracks:
+        path = track.get_path()
+
+        # Skip if file (with same extension) exists
+        # Simplier but not ideal because that track
+        # could be corrupted and will not be replaced
+        if path.exists():
+            logging.info(f'"{track}" already downloaded, skipping')
+            continue
+
+        # Download
+        track.store_spotify_stream(ls)
+        logging.info(f"Successfully downloaded: {track}")
+
+        # Tag (OGG files only) TODO: add FLAC support
+        match track.ext:
+            case ".ogg":
+                tag_ogg_file(track)
+            case _:
+                logging.warning(f"Tagging not supported for {track.ext} files")
+
+
+async def main() -> None:
     # Init Spotify API and Librespot
-    logging.info("Initializing Librespot..")
     ls = Librespot()
-    logging.info("Connecting to Spotify API..")
-    spotify_api = SpotifyAPI()
+    api = SpotifyAPI()
+    ls_init_task = ls.create_session()
+    spotify_api_init_task = api.init_api()
+    await asyncio.gather(ls_init_task, spotify_api_init_task)
 
-    def request(query: str) -> None:
-        tracks: list[Track] = spotify_api.get_tracks(query)
-        if len(tracks) > 10:
-            c = input(
-                f"You are about to download {len(tracks)} tracks and may be ratelimited. "
-                "Continue ? (y/n): "
-            )
-            if c.lower() not in {"y", ""}:
-                return
+    while True:
+        try:
+            query = input("Query: ")
+            if query != "":
+                request(query, ls, api)
 
-        for track in tracks:
-            path = track.get_path()
+        except (KeyboardInterrupt, EOFError):
+            print()
+            ls.close_session()
+            return
 
-            # Skip if file exists
-            # Simplier but not ideal because that track
-            # could be corrupted and will not be replaced
-            if path.exists():
-                logging.info(f'"{track}" already downloaded, skipping')
-                continue
 
-            # Download
-            track.store_spotify_stream(ls)
-            logging.info(f"Successfully downloaded: {track}")
-
-            # Tag (OGG files only) TODO: add FLAC support
-            match track.ext:
-                case ".ogg":
-                    tag_ogg_file(track)
-                case _:
-                    logging.warning(f"Tagging not supported for {track.ext} files")
-
+if __name__ == "__main__":
     try:
-        while True:
-            try:
-                query = input("Query: ")
-            except Exception as e:
-                logging.error(e)
-            request(query)
-
-    except KeyboardInterrupt:
-        print()
-        ls.close_session()
+        asyncio.run(main())
+    except (asyncio.exceptions.CancelledError, KeyboardInterrupt, EOFError):
+        ...

@@ -25,4 +25,3 @@ Supported query: song title, Spotify URL (track, album or **public** playlist).
 
 ## To do
 - Add FLAC support (bugged right now)
-- Merge Spotify APIs (so the script only needs Librespot instead of the Spotipy wrapper)

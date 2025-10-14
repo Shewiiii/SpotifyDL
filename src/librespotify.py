@@ -1,7 +1,7 @@
+import asyncio
 from datetime import datetime
 from typing import Optional
 import logging
-from time import sleep
 
 from pathlib import Path
 
@@ -13,30 +13,30 @@ class Librespot:
     def __init__(self) -> None:
         self.updated: Optional[datetime] = None
         self.session: Optional[Session] = None
-        self.create_session()
 
-    def create_session(self, path: Path = Path("./credentials.json")) -> None:
+    async def create_session(self, path: Path = Path("./credentials.json")) -> None:
         """Wait for credentials and generate a json file if needed."""
+        logging.info("Initializing Librespot..")
         if not path.exists():
             logging.warning(
                 "Please log in to Librespot from Spotify's official client !\n"
                 "Librespot should appear as a device in the devices tab."
             )
-            session = ZeroconfServer.Builder().create()
+            session = await asyncio.to_thread(ZeroconfServer.Builder().create)
             while not path.exists():
-                sleep(1)
+                await asyncio.sleep(1)
             logging.info(
                 "Credentials saved successfully, closing Zeroconf session. "
                 "You can now close Spotify. ( ^^) _旦~~"
             )
             session.close_session()
 
-        self.generate_session()
+        await self.generate_session()
 
-    def generate_session(self) -> None:
+    async def generate_session(self) -> None:
         if self.session:
             return
-        self.session = Session.Builder().stored_file().create()
+        self.session = await asyncio.to_thread(Session.Builder().stored_file().create)
         self.updated = datetime.now()
         logging.info("Librespot session created !")
 
@@ -45,3 +45,6 @@ class Librespot:
             self.session.close()
             self.session = None
             logging.info("Librespot session closed.")
+
+    # The following methods get metadata purely from Spotify's backend API
+    # No search endpoint but faster than the web API
