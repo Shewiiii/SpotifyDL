@@ -1,10 +1,11 @@
 import asyncio
 import logging
+import os
 import sys
 from dotenv import load_dotenv
 from pathlib import Path
 
-from config import TRACK_FOLDER
+from config import TRACK_FOLDER, OPEN_IN_EXPLORER_AFTER_DOWNLOAD
 from src.track_dataclass import Track
 from src.librespotify import Librespot
 from src.spotify import SpotifyAPI
@@ -64,6 +65,18 @@ def request(query: str, ls: Librespot, api: SpotifyAPI) -> None:
                 tag_ogg_file(track)
             case _:
                 logging.warning(f"Tagging not supported for {track.ext} files")
+
+    # If set, reveal in explorer after download:
+    if OPEN_IN_EXPLORER_AFTER_DOWNLOAD:
+        # Parent folder of the single/album
+        if len(tracks) == 1 or all(
+            tracks[0].album == track.album for track in tracks
+        ):
+            os.startfile(path.parent)
+
+        # OR the song folder if from multiple sources
+        else:
+            os.startfile(path.parents[2])
 
 
 async def main() -> None:
