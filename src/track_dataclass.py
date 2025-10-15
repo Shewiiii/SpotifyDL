@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Union, Optional, Self, Literal
 
-from config import TRACK_FOLDER
+from config import TRACK_FOLDER, TRY_FLAC_DOWNLOAD
 from src.librespotify import Librespot
 from librespot.audio import AbsChunkedInputStream, AudioQualityPicker
 from librespot.metadata import TrackId
@@ -20,6 +20,8 @@ PICKERS = {
     "flac": LosslessOnlyAudioQuality(AudioQuality.LOSSLESS),
     "vorbis": VorbisOnlyAudioQuality(AudioQuality.VERY_HIGH),
 }
+
+user_picker = "flac" if TRY_FLAC_DOWNLOAD else "vorbis"
 
 ILLEGAL_CHARS = '/\\?%*:|"<>!'  # Extend as needed
 ILLEGAL_TABLE = str.maketrans({c: "-" for c in ILLEGAL_CHARS})
@@ -67,6 +69,9 @@ class Track:
 
     def set_path(self) -> Self:
         self.path = TRACK_FOLDER
+        if not TRY_FLAC_DOWNLOAD:
+            self.ext = ".ogg"
+
         # Path here: songs / artist / album / track
         for part in [self.artists[0], self.album, f"{self}{self.ext}"]:
             part = part.translate(ILLEGAL_TABLE)
@@ -104,8 +109,8 @@ class Track:
         return self.stream_source
 
     def generate_stream(self, ls: Librespot) -> AbsChunkedInputStream:
-        self.load_stream_(ls, aq_picker=PICKERS["flac"])
-        if not self.stream_source:
+        self.load_stream_(ls, aq_picker=PICKERS[user_picker])
+        if TRY_FLAC_DOWNLOAD and not self.stream_source:
             logging.warning(f'FLAC file not found for "{self}", getting OGG stream.')
             self.ext = ".ogg"
             self.load_stream_(ls, aq_picker=PICKERS["vorbis"])

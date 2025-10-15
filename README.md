@@ -22,6 +22,11 @@ Supported query: song title, Spotify URL (track, album or **public** playlist).
 > [!WARNING]  
 > Spotify's rate limiting is pretty strict. You might want to wait a bit after downloading about ten songs in a raw.
 
+## Config
+You can change the following in the `config.py` file:
+- Track folder
+- Reveal songs in file explorer after download
+- Try FLAC files download (will probably not work)
 
 ## To do
-- Add FLAC support (bugged right now)
+- Add FLAC support
