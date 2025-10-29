@@ -12,7 +12,7 @@ from src.spotify import SpotifyAPI
 from src.utils import tag_ogg_file
 
 
-load_dotenv()
+load_dotenv(Path("./.env"), override=True)
 Path(TRACK_FOLDER).mkdir(exist_ok=True, parents=True)
 
 # Logs
@@ -69,9 +69,7 @@ def request(query: str, ls: Librespot, api: SpotifyAPI) -> None:
     # If set, reveal in explorer after download:
     if OPEN_IN_EXPLORER_AFTER_DOWNLOAD:
         # Parent folder of the single/album
-        if len(tracks) == 1 or all(
-            tracks[0].album == track.album for track in tracks
-        ):
+        if len(tracks) == 1 or all(tracks[0].album == track.album for track in tracks):
             os.startfile(path.parent)
 
         # OR the song folder if from multiple sources
@@ -102,5 +100,5 @@ async def main() -> None:
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-    except (asyncio.exceptions.CancelledError, KeyboardInterrupt, EOFError):
+    except (asyncio.exceptions.CancelledError, KeyboardInterrupt, EOFError, OSError):
         ...

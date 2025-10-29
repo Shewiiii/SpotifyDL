@@ -2,15 +2,16 @@ import asyncio
 import re
 import os
 import logging
-from src.utils import is_url
 from typing import Optional
+from pathlib import Path
 
 import spotipy
 from spotipy.oauth2 import SpotifyOauthError
 from spotipy.oauth2 import SpotifyClientCredentials
-from src.track_dataclass import Track
-
 from librespot.metadata import TrackId
+
+from src.track_dataclass import Track
+from src.utils import is_url
 
 
 SPOTIFY_URL_REGEX = re.compile(
@@ -54,6 +55,11 @@ class SpotifyAPI:
         logging.info("Connecting to Spotify API..")
 
         if not (self.client_id or self.client_secret):
+            # Wait until the user logged in Librespot
+            path: Path = Path("./credentials.json")
+            while not path.exists():
+                await asyncio.sleep(1)
+
             logging.info(
                 "Please create a Spotify App, then paste the correct "
                 "values below: https://developer.spotify.com/dashboard"
@@ -62,14 +68,14 @@ class SpotifyAPI:
 
         valid_app = False
         while not valid_app:
-            # Tested API
-            self.api = spotipy.Spotify(
-                auth_manager=SpotifyClientCredentials(
-                    client_id=self.client_id,
-                    client_secret=self.client_secret,
-                )
-            )
             try:
+                # Tested API
+                self.api = spotipy.Spotify(
+                    auth_manager=SpotifyClientCredentials(
+                        client_id=self.client_id,
+                        client_secret=self.client_secret,
+                    )
+                )
                 # API Request Test
                 await asyncio.to_thread(self.api.track, "6kIivltIxJscvk682sTXoV")
                 valid_app = True
