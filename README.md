@@ -2,10 +2,13 @@
 
 A rudimentary Spotify Downloader based on Librespot.
 
-## Feature
-Download tracks from Spotify in OGG 320kbps with metadata.
+## Features
+- Download tracks from Spotify in OGG 320kbps with metadata.
+- Download directly from a Spotify client using the Spicetify extension.
 
 ## Usage
+### Setup
+
 Requirements: Python 3.10 or newer, Spotify Premium, a [Spotify app](https://developer.spotify.com/dashboard) for API calls.
 - Copy the repo and install the dependencies (use a venv as needed). 
 ```bash
@@ -21,6 +24,40 @@ Supported query: song title, Spotify URL (track, album or **public** playlist).
 
 > [!WARNING]  
 > Spotify's rate limiting is pretty strict. You might want to wait a bit after downloading about ten songs in a raw.
+
+### Spicetify integration
+
+<p align="center">
+    <img src="spicetify_example.png" alt="Example">
+</p>
+
+Requirements: Spotify client, [Spicetify](https://spicetify.app/).
+- Install the dependencies to run `spicetify_server.py` (Flask server, use a venv as needed). 
+```bash
+pip install -r spicy_requirements.txt
+```
+- Locate the Spicetify `Extensions` folder:
+```bash
+spicetify config-dir
+```
+- Copy or move `spotifyDL.js` into the `Extensions` folder.
+- Enable the extension:
+```bash
+spicetify config extensions spotifyDL.js
+spicetify apply
+```
+- Run `spicetify_server.py`
+```bash
+python spicetify_server.py
+```
+
+> [!TIP]  
+> You may want to create a script to run the server more easily. For example on Windows:
+> ```bash
+> # In SpotifyDL.bat
+> cd /path/to/SpotifyDL
+> ".venv/Scripts/python.exe" spicetify_server.py
+> ```
 
 ## Config
 You can change the following in the `config.py` file:

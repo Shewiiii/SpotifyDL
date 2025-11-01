@@ -35,15 +35,21 @@ for log in filtered_logs:
     logging.getLogger(log).setLevel(logging.CRITICAL + 1)
 
 
-def request(query: str, ls: Librespot, api: SpotifyAPI) -> None:
+def request(
+    query: str, ls: Librespot, api: SpotifyAPI, ignore_warning: bool = False
+) -> None:
     tracks: list[Track] = api.get_tracks(query)
-    if len(tracks) > 10:
+    if len(tracks) > 10 and not ignore_warning:
         c = input(
             f"You are about to download {len(tracks)} tracks and may be ratelimited. "
             "Continue ? (y/n): "
         )
         if c.lower() not in {"y", ""}:
             return
+
+    if not tracks:
+        logging.warning(f"No tracks found: {query}")
+        return
 
     for track in tracks:
         path = track.get_path()
@@ -66,7 +72,6 @@ def request(query: str, ls: Librespot, api: SpotifyAPI) -> None:
             case _:
                 logging.warning(f"Tagging not supported for {track.ext} files")
 
-    # If set, reveal in explorer after download:
     if OPEN_IN_EXPLORER_AFTER_DOWNLOAD:
         # Parent folder of the single/album
         if len(tracks) == 1 or all(tracks[0].album == track.album for track in tracks):
