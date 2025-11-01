@@ -1,8 +1,8 @@
 import logging
-import os
 from pathlib import Path
+from typing import Optional
 
-from config import OPEN_IN_EXPLORER_AFTER_DOWNLOAD, TRACK_FOLDER
+from config import TRACK_FOLDER
 from src.track_dataclass import Track
 from src.libre_spotify import Librespot
 from src.spotify_api import SpotifyAPI
@@ -11,9 +11,11 @@ from src.utils import tag_ogg_file
 Path(TRACK_FOLDER).mkdir(exist_ok=True, parents=True)
 
 
-def request(
+def download(
     query: str, ls: Librespot, api: SpotifyAPI, ignore_warning: bool = False
-) -> None:
+) -> Optional[Path]:
+    """Download tracks from a Spotify URL or search query.
+    Return the parent path of the downloaded tracks."""
     tracks: list[Track] = api.get_tracks(query)
     if len(tracks) > 10 and not ignore_warning:
         c = input(
@@ -48,15 +50,14 @@ def request(
             case _:
                 logging.warning(f"Tagging not supported for {track.ext} files")
 
-    if OPEN_IN_EXPLORER_AFTER_DOWNLOAD:
-        # Parent folder of the single/album
-        if len(tracks) == 1 or all(tracks[0].album == track.album for track in tracks):
-            os.startfile(path.parent)
+    # Parent folder of the single/album
+    if len(tracks) == 1 or all(tracks[0].album == track.album for track in tracks):
+        return path.parent
 
-        # Artist folder
-        elif all(tracks[0].artist == track.artist for track in tracks):
-            os.startfile(path.parents[1])
+    # Artist folder
+    elif all(tracks[0].artist == track.artist for track in tracks):
+        return path.parents[1]
 
-        # Song folder if from multiple sources
-        else:
-            os.startfile(path.parents[2])
+    # Song folder if from multiple sources
+    else:
+        return path.parents[2]

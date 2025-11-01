@@ -1,8 +1,10 @@
 import asyncio
+import os
 
 from src.libre_spotify import Librespot
 from src.spotify_api import SpotifyAPI
-from src.spotify_dl import request
+from src.spotify_dl import download
+from config import OPEN_IN_EXPLORER_AFTER_DOWNLOAD
 
 
 async def main() -> None:
@@ -16,8 +18,12 @@ async def main() -> None:
     while True:
         try:
             query = input("Query: ")
-            if query != "":
-                request(query, ls, api)
+            if query == "":
+                continue
+
+            parent_path = download(query, ls, api)
+            if parent_path and OPEN_IN_EXPLORER_AFTER_DOWNLOAD:
+                os.startfile(parent_path)
 
         except (KeyboardInterrupt, EOFError):
             print()

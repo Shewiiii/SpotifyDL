@@ -7,6 +7,11 @@
   const downloadItem = new Spicetify.ContextMenu.Item(
     "Download",
     async (uris) => {
+      // Increment task count
+      fetch(`http://localhost:5000/add/${uris.length}`, {
+        method: "GET",
+      });
+
       for (const uri of uris) {
         try {
           const elementId = uri.split(":")[2];
