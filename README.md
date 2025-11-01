@@ -6,9 +6,10 @@ A rudimentary Spotify Downloader based on Librespot.
 - Download tracks from Spotify in OGG 320kbps with metadata.
 - Adds a direct download option to the Spotify desktop client (via Spicetify).
 
-## Usage
-### Setup
+## Setup
+You can jump to [Spicetify integration](#spicetify-integration) if you want to use the downloader directly from the Spotify client.
 
+### Downloader
 Requirements: Python 3.10 or newer, Spotify Premium, a [Spotify app](https://developer.spotify.com/dashboard) for API calls.
 - Copy the repo and install the dependencies (use a venv as needed). 
 ```bash
@@ -28,7 +29,7 @@ Supported query: song title, Spotify URL (track, album or **public** playlist).
     <img src="spicetify_example.png" alt="Example">
 </p>
 
-Requirements: Spotify client, [Spicetify](https://spicetify.app/).
+Requirements: Python 3.10 or newer, Spotify Premium, a [Spotify app](https://developer.spotify.com/dashboard) for API calls, [Spicetify](https://spicetify.app/).
 - Install the dependencies to run `spicetify_server.py` (Flask server, use a venv as needed). 
 ```bash
 pip install -r spicy_requirements.txt
@@ -57,7 +58,7 @@ python spicetify_server.py
 > ```
 
 ## Config
-You can change the following in the `config.py` file:
+You can change the following in `config.py`:
 - Track folder
 - Reveal songs in file explorer after download
 - Try FLAC files download (will probably not work)
