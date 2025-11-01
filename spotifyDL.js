@@ -1,6 +1,4 @@
 (async function downloadButton() {
-  console.log("caca");
-
   if (!Spicetify.React || !Spicetify.ReactDOM || !Spicetify.ContextMenu) {
     setTimeout(downloadButton, 300);
     return;
