@@ -22,9 +22,6 @@ If you struggle to generate the `credentials.json` file (eg. you are running the
 
 Supported query: song title, Spotify URL (track, album or **public** playlist).
 
-> [!WARNING]  
-> Spotify's rate limiting is pretty strict. You might want to wait a bit after downloading about ten songs in a raw.
-
 ### Spicetify integration
 
 <p align="center">
