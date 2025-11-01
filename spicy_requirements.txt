@@ -2,4 +2,5 @@ git+https://github.com/kokarare1212/librespot-python.git
 mutagen
 spotipy
 python-dotenv
-flask[async]
+flask
+flask_cors
