@@ -3,9 +3,9 @@ from flask import Flask
 from flask_cors import CORS
 import logging
 
-from src.librespotify import Librespot
-from src.spotify import SpotifyAPI
-from main import request  # Subject to change
+from src.libre_spotify import Librespot
+from src.spotify_api import SpotifyAPI
+from src.spotify_dl import request
 
 app = Flask(__name__)
 CORS(
@@ -44,7 +44,7 @@ async def main() -> None:
     spotify_api_init_task = api.init_api()
     await asyncio.gather(ls_init_task, spotify_api_init_task)
     logging.info("SpotifyDL server ready.")
-    
+
     # Maintain Librespot alive
     # The cleanest method would have been to use sync functions only
     # but since the init process is async for faster startup, this is a workaround

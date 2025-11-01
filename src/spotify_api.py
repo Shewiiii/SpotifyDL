@@ -4,6 +4,7 @@ import os
 import logging
 from typing import Optional
 from pathlib import Path
+from dotenv import load_dotenv
 
 import spotipy
 from spotipy.oauth2 import SpotifyOauthError
@@ -12,7 +13,6 @@ from librespot.metadata import TrackId
 
 from src.track_dataclass import Track
 from src.utils import is_url
-
 
 SPOTIFY_URL_REGEX = re.compile(
     r"https?://open\.spotify\.com/(?:(?:intl-[a-z]{2})/)?"
@@ -44,6 +44,7 @@ def get_cover_url(album) -> str:
 
 class SpotifyAPI:
     def __init__(self):
+        load_dotenv(Path("./.env"), override=True)
         self.client_id = os.getenv("SPOTIPY_CLIENT_ID")
         self.client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
 

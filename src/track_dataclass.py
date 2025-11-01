@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Union, Optional, Self, Literal
 
 from config import TRACK_FOLDER, TRY_FLAC_DOWNLOAD
-from src.librespotify import Librespot
+from src.libre_spotify import Librespot
 from librespot.audio import AbsChunkedInputStream, AudioQualityPicker
 from librespot.metadata import TrackId
 from librespot.structure import FeederException
