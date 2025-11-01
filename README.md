@@ -4,7 +4,7 @@ A rudimentary Spotify Downloader based on Librespot.
 
 ## Features
 - Download tracks from Spotify in OGG 320kbps with metadata.
-- Download directly from a Spotify client using the Spicetify extension.
+- Adds a direct download option to the Spotify desktop client (via Spicetify).
 
 ## Usage
 ### Setup
