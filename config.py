@@ -3,10 +3,16 @@ import platform
 from pathlib import Path
 import logging
 import sys
+import os
 
 TRACK_FOLDER = Path("./songs")
 OPEN_IN_EXPLORER_AFTER_DOWNLOAD = True
 TRY_FLAC_DOWNLOAD = False
+
+
+# Disable "Open in file explorer" feature on uncompatible systems
+if not hasattr(os, "startfile"):
+    OPEN_IN_EXPLORER_AFTER_DOWNLOAD = False
 
 # Logs
 logging.basicConfig(
@@ -31,4 +37,3 @@ for log in filtered_logs:
 # Fix the "incorrect parameter" error on Windows
 if platform.system() == "Windows":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    
