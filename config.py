@@ -1,3 +1,5 @@
+import asyncio
+import platform
 from pathlib import Path
 import logging
 import sys
@@ -24,3 +26,9 @@ filtered_logs = [
 ]
 for log in filtered_logs:
     logging.getLogger(log).setLevel(logging.CRITICAL + 1)
+
+
+# Fix the "incorrect parameter" error on Windows
+if platform.system() == "Windows":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    

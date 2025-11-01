@@ -28,9 +28,11 @@ CORS(
 class Server:
     def __init__(self):
         self.ls = Librespot()
+        self.ls.login()
         self.api = SpotifyAPI()
         self.download_task_count = 0
         self.tasks_parent_path: Optional[Path] = None
+        
 
         app.add_url_rule("/add/<task_count>", "add_tasks", self.add_tasks)
         app.add_url_rule(
@@ -50,13 +52,10 @@ class Server:
         )
 
     async def main(self) -> None:
-        # Run Flask app
-        asyncio.create_task(asyncio.to_thread(app.run, port=5000))
-
-        # Init Spotify API and Librespot
-        ls_init_task = self.ls.create_session()
+        ls_init_task = self.ls.generate_session()
         spotify_api_init_task = self.api.init_api()
-        await asyncio.gather(ls_init_task, spotify_api_init_task)
+        flask_task = asyncio.to_thread(app.run, port=5000)
+        await asyncio.gather(ls_init_task, spotify_api_init_task, flask_task)
         logging.info("SpotifyDL server ready.")
 
         # Maintain Librespot alive

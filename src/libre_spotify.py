@@ -2,8 +2,8 @@ import asyncio
 from datetime import datetime
 from typing import Optional
 import logging
-
 from pathlib import Path
+from time import sleep
 
 from librespot.core import Session
 from librespot.zeroconf import ZeroconfServer
@@ -14,26 +14,23 @@ class Librespot:
         self.updated: Optional[datetime] = None
         self.session: Optional[Session] = None
 
-    async def create_session(self) -> None:
+    @staticmethod
+    def login() -> None:
         """Wait for credentials and generate a json file if needed."""
         logging.info("Initializing Librespot..")
         path: Path = Path("./credentials.json")
         if not path.exists():
-            session = await asyncio.to_thread(ZeroconfServer.Builder().create)
-            await asyncio.sleep(3)
             logging.warning(
-                "Please log in to Librespot from Spotify's official client !\n"
+                "Please log into Librespot from Spotify's official client !\n"
                 "Librespot should appear as a device in the devices tab."
             )
+            session = ZeroconfServer.Builder().create()
             while not path.exists():
-                await asyncio.sleep(1)
+                sleep(1)
             logging.info(
-                "Credentials saved successfully, closing Zeroconf session. "
-                "You can now close Spotify. ( ^^) _旦~~"
+                "Credentials saved successfully, closing Zeroconf session. ( ^^) _旦~~"
             )
             session.close_session()
-
-        await self.generate_session()
 
     async def generate_session(self) -> None:
         if self.session:
