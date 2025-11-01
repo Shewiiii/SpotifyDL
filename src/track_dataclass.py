@@ -2,7 +2,7 @@ import logging
 from time import sleep
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Union, Optional, Self, Literal
+from typing import Union, Optional, Literal
 
 from config import TRACK_FOLDER, TRY_FLAC_DOWNLOAD
 from src.libre_spotify import Librespot
@@ -56,18 +56,18 @@ class Track:
         else:
             return str(self)
 
-    def set_artist(self, artist: str) -> Self:
+    def set_artist(self, artist: str):
         self.artist = artist
         self.artists = [artist]
         return self
 
-    def set_artists(self, artists: list) -> Self:
+    def set_artists(self, artists: list):
         if artists:
             self.artists = artists
             self.artist = ", ".join(artists)
         return self
 
-    def set_path(self) -> Self:
+    def set_path(self):
         self.path = TRACK_FOLDER
         if not TRY_FLAC_DOWNLOAD:
             self.ext = ".ogg"
