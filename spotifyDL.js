@@ -114,7 +114,6 @@
       if (!isValidType) return false;
 
       // Only enable button if all items are downloaded
-      // Wait for all fetches to complete
       Promise.all(
         uris.map(async (uri) => {
           const [, elementType, elementId] = uri.split(":");

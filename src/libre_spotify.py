@@ -44,6 +44,3 @@ class Librespot:
             self.session.close()
             self.session = None
             logging.info("Librespot session closed.")
-
-    # The following methods get metadata purely from Spotify's backend API
-    # No search endpoint but faster than the web API
