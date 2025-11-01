@@ -1,10 +1,10 @@
-(async function downloadButton() {
+(async function spotifyDL() {
   if (!Spicetify.React || !Spicetify.ReactDOM || !Spicetify.ContextMenu) {
-    setTimeout(downloadButton, 300);
+    setTimeout(spotifyDL, 300);
     return;
   }
 
-  const downloadItem = new Spicetify.ContextMenu.Item(
+  const downloadButton = new Spicetify.ContextMenu.Item(
     "Download",
     async (uris) => {
       // Increment task count
@@ -14,11 +14,8 @@
 
       for (const uri of uris) {
         try {
-          const elementId = uri.split(":")[2];
-          const elementType = uri.split(":")[1];
-          const elementUrl = `https://api.spotify.com/v1/${
-            elementType === "track" ? "tracks" : elementType + "s"
-          }/${elementId}`;
+          const [, elementType, elementId] = uri.split(":");
+          const elementUrl = `https://api.spotify.com/v1/${elementType}s/${elementId}`;
           const elementData = await Spicetify.CosmosAsync.get(elementUrl);
           const elementName = elementData.name;
 
@@ -54,12 +51,13 @@
               }
             })
             .catch((error) => {
-              console.error(error);
+              console.error(`Error during download: ${error}`);
               Spicetify.showNotification(
                 `${error}. Make sure the SpotifyDL server is running.`,
                 true,
                 3000
               );
+              return;
             });
         } catch (error) {
           console.error("Error during URI parsing:", error);
@@ -76,6 +74,76 @@
     false
   );
 
-  downloadItem.register();
+  const openInExplorerButton = new Spicetify.ContextMenu.Item(
+    "Open in file explorer",
+    async (uris) => {
+      for (const uri of uris) {
+        try {
+          const [, elementType, elementId] = uri.split(":");
+          const response = await fetch(
+            `http://localhost:5000/open/${elementType}/${elementId}`,
+            {
+              method: "GET",
+            }
+          );
+
+          if (!response.ok) {
+            Spicetify.showNotification(
+              "The song or album has not been downloaded yet !",
+              false,
+              3000
+            );
+          }
+        } catch (error) {
+          console.error(`Error opening file: ${error}`);
+          Spicetify.showNotification(
+            `${error}. Make sure the SpotifyDL server is running.`,
+            true,
+            3000
+          );
+          return;
+        }
+      }
+    },
+    (uris) => {
+      if (!uris) return false;
+      const validTypes = ["track", "album", "artist"];
+      const isValidType = validTypes.some((type) =>
+        uris[0].includes(`spotify:${type}:`)
+      );
+      if (!isValidType) return false;
+
+      // Only enable button if all items are downloaded
+      // Wait for all fetches to complete
+      Promise.all(
+        uris.map(async (uri) => {
+          const [, elementType, elementId] = uri.split(":");
+          try {
+            const response = await fetch(
+              `http://localhost:5000/is_downloaded/${elementType}/${elementId}`,
+              {
+                method: "GET",
+              }
+            );
+            const isDownloaded = (await response.text()) === "true";
+            return isDownloaded;
+          } catch (error) {
+            console.log(`${error}. The server is probably not running.`);
+            return false;
+          }
+        })
+      ).then((results) => {
+        const allDownloaded = results.every((result) => result === true);
+        openInExplorerButton.disabled = !allDownloaded;
+      });
+
+      return true;
+    },
+    "playlist-folder",
+    false
+  );
+
+  downloadButton.register();
+  openInExplorerButton.register();
   console.log("Download button loaded");
 })();

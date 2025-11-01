@@ -10,6 +10,7 @@ from config import OPEN_IN_EXPLORER_AFTER_DOWNLOAD
 from src.libre_spotify import Librespot
 from src.spotify_api import SpotifyAPI
 from src.spotify_dl import download
+from src.track_dataclass import Track
 
 app = Flask(__name__)
 CORS(
@@ -36,6 +37,16 @@ class Server:
             "/<element_type>/<element_id>",
             "request_download",
             self.request_download,
+        )
+        app.add_url_rule(
+            "/is_downloaded/<element_type>/<element_id>",
+            "is_downloaded",
+            self.is_downloaded,
+        )
+        app.add_url_rule(
+            "/open/<element_type>/<element_id>",
+            "open_in_explorer",
+            self.open_in_explorer,
         )
 
     async def main(self) -> None:
@@ -71,7 +82,7 @@ class Server:
             else:
                 self.tasks_parent_path = self.tasks_parent_path.parents[1]
 
-    # FLASK ENDPOINT FUNCTIONS
+    # FLASK ENDPOINT METHODS
     def add_tasks(self, task_count) -> str:
         self.download_task_count += int(task_count)
         return str(self.download_task_count)
@@ -97,6 +108,26 @@ class Server:
                     self.reset_tasks()
 
         return "keqing"
+
+    def is_downloaded(self, element_type, element_id, check_type=any) -> str:
+        tracks: list[Track] = self.api.get_tracks(id_=element_id, type=element_type)
+        bd = {True: "true", False: "false"}
+        if not tracks:
+            return bd[False]
+
+        downloaded = check_type(track.get_path().exists() for track in tracks)
+        return bd[downloaded]
+
+    def open_in_explorer(self, element_type, element_id) -> str:
+        tracks: list[Track] = self.api.get_tracks(id_=element_id, type=element_type)
+        # is_downloaded should have been called before
+
+        if element_type in {"track", "album"}:
+            os.startfile(tracks[0].get_path().parent)
+        elif element_type == "artist":
+            os.startfile(tracks[0].get_path().parents[1])
+
+        return "ok"
 
 
 if __name__ == "__main__":
