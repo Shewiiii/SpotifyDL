@@ -63,5 +63,14 @@ You can change the following in `config.py`:
 - Reveal songs in file explorer after download
 - Try FLAC files download (will probably not work)
 
+To update SpotifyDL, simply run:
+```bash
+python update.py
+```
+Or with a venv:
+```bash
+".venv/Scripts/python.exe" update.py
+```
+
 ## To do
 - Add FLAC support

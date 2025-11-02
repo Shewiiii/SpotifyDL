@@ -8,6 +8,7 @@ import os
 TRACK_FOLDER = Path("./songs")
 OPEN_IN_EXPLORER_AFTER_DOWNLOAD = True
 TRY_FLAC_DOWNLOAD = False
+REPOSITORY_URL = "https://github.com/Shewiiii/SpotifyDL"
 
 
 # Disable "Open in file explorer" feature on uncompatible systems
